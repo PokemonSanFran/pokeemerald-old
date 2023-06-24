@@ -1,89 +1,87 @@
-BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts::
-	map_script MAP_SCRIPT_ON_RESUME, BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts_MAP_SCRIPT_ON_RESUME
-	map_script MAP_SCRIPT_ON_TRANSITION, BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts_MAP_SCRIPT_ON_TRANSITION
-	map_script MAP_SCRIPT_ON_WARP_INTO_MAP_TABLE, BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts_MAP_SCRIPT_ON_WARP_INTO_MAP_TABLE
-	map_script MAP_SCRIPT_ON_FRAME_TABLE, BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts_MAP_SCRIPT_ON_FRAME_TABLE
-	.byte 0
+const ATTENDANT = 1
 
-BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts_MAP_SCRIPT_ON_RESUME:
-	pyramid_resetparty
+mapscripts BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts{
+    MAP_SCRIPT_ON_RESUME{
+        pyramid_resetparty
+        end
+    }
+    MAP_SCRIPT_ON_TRANSITION{
+        goto_if_set(FLAG_CHOSEN_MULTI_BATTLE_NPC_PARTNER, BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_ChosePartner)
+        clearflag(FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_1)
+        clearflag(FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_2)
+        clearflag(FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_3)
+        clearflag(FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_4)
+        clearflag(FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_5)
+        clearflag(FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_6)
+        setflag(FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_ALT_1)
+        setflag(FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_ALT_2)
+        tower_loadpartners
+        end
+    }
+    MAP_SCRIPT_ON_WARP_INTO_MAP_TABLE[
+        VAR_TEMP_3, 1: BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TurnPlayerNorth
+    ]
+    MAP_SCRIPT_ON_FRAME_TABLE[
+        VAR_TEMP_1, 0: BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_EnterRoom
+        VAR_TEMP_3, 1: BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_ExitRoom
+    ]
+}
+
+script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_ChosePartner{
+    setvar(VAR_OBJ_GFX_ID_0, OBJ_EVENT_GFX_BOY_1)
+    setvar(VAR_OBJ_GFX_ID_1, OBJ_EVENT_GFX_BOY_1)
+    setvar(VAR_OBJ_GFX_ID_2, OBJ_EVENT_GFX_BOY_1)
+    setvar(VAR_OBJ_GFX_ID_3, OBJ_EVENT_GFX_BOY_1)
+    setvar(VAR_OBJ_GFX_ID_4, OBJ_EVENT_GFX_BOY_1)
+    setvar(VAR_OBJ_GFX_ID_5, OBJ_EVENT_GFX_BOY_1)
+    setvar(VAR_OBJ_GFX_ID_6, OBJ_EVENT_GFX_BOY_1)
+    setvar(VAR_OBJ_GFX_ID_7, OBJ_EVENT_GFX_BOY_1)
+    setvar(VAR_TEMP_1, 1)
+    setvar(VAR_TEMP_3, 1)
+    setobjectxyperm(ATTENDANT, 10, 2)
 	end
+}
 
-BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts_MAP_SCRIPT_ON_TRANSITION:
-	goto_if_set FLAG_CHOSEN_MULTI_BATTLE_NPC_PARTNER, BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_ChosePartner
-	clearflag FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_1
-	clearflag FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_2
-	clearflag FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_3
-	clearflag FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_4
-	clearflag FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_5
-	clearflag FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_6
-	setflag FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_ALT_1
-	setflag FLAG_HIDE_BATTLE_TOWER_MULTI_BATTLE_PARTNER_ALT_2
-	tower_loadpartners
-	end
+script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TurnPlayerNorth{
+	turnobject(OBJ_EVENT_ID_PLAYER, DIR_NORTH)
+    end
+}
 
-BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts_MAP_SCRIPT_ON_WARP_INTO_MAP_TABLE:
-	map_script_2 VAR_TEMP_3, 1, BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TurnPlayerNorth
-	.2byte 0
-
-BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts_MAP_SCRIPT_ON_FRAME_TABLE:
-	map_script_2 VAR_TEMP_1, 0, BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_EnterRoom
-	map_script_2 VAR_TEMP_3, 1, BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_ExitRoom
-	.2byte 0
-
-
-BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_ChosePartner::
-	setvar VAR_OBJ_GFX_ID_0, OBJ_EVENT_GFX_BOY_1
-	setvar VAR_OBJ_GFX_ID_1, OBJ_EVENT_GFX_BOY_1
-	setvar VAR_OBJ_GFX_ID_2, OBJ_EVENT_GFX_BOY_1
-	setvar VAR_OBJ_GFX_ID_3, OBJ_EVENT_GFX_BOY_1
-	setvar VAR_OBJ_GFX_ID_4, OBJ_EVENT_GFX_BOY_1
-	setvar VAR_OBJ_GFX_ID_5, OBJ_EVENT_GFX_BOY_1
-	setvar VAR_OBJ_GFX_ID_6, OBJ_EVENT_GFX_BOY_1
-	setvar VAR_OBJ_GFX_ID_7, OBJ_EVENT_GFX_BOY_1
-	setvar VAR_TEMP_1, 1
-	setvar VAR_TEMP_3, 1
-	setobjectxyperm 1, 10, 2
-	end
-
-
-BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TurnPlayerNorth::
-	turnobject OBJ_EVENT_ID_PLAYER, DIR_NORTH
-	end
-
-
-BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_ExitRoom::
+script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_ExitRoom{
 	lockall
-	setvar VAR_TEMP_3, 0
-	goto BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_EnterElevator
+	setvar(VAR_TEMP_3, 0)
+	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_EnterElevator)
 	end
+}
 
-
-BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_EnterRoom::
+script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_EnterRoom{
 	lockall
-	applymovement OBJ_EVENT_ID_PLAYER, BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PlayerEnterRoom
-	waitmovement 0
-	applymovement LOCALID_ATTENDANT, BattleFrontier_BattleTowerMultiPartnerRoom_Movement_AttendantBlockExit
-	waitmovement 0
-	copyobjectxytoperm LOCALID_ATTENDANT
-	applymovement OBJ_EVENT_ID_PLAYER, Common_Movement_WalkInPlaceFasterUp
-	waitmovement 0
-	msgbox BattleFrontier_BattleTowerMultiPartnerRoom_Text_PleaseFindPartner, MSGBOX_DEFAULT
-	special HealPlayerParty
-	setvar VAR_TEMP_1, 1
+	applymovement(OBJ_EVENT_ID_PLAYER, BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PlayerEnterRoom)
+	waitmovement(0)
+	applymovement(LOCALID_ATTENDANT, BattleFrontier_BattleTowerMultiPartnerRoom_Movement_AttendantBlockExit)
+	waitmovement(0)
+	copyobjectxytoperm(LOCALID_ATTENDANT)
+	applymovement(OBJ_EVENT_ID_PLAYER, Common_Movement_WalkInPlaceFasterUp)
+	waitmovement(0)
+	msgbox(BattleFrontier_BattleTowerMultiPartnerRoom_Text_PleaseFindPartner, MSGBOX_DEFAULT)
+	special(HealPlayerParty)
+	setvar(VAR_TEMP_1, 1)
 	releaseall
 	end
+}
 
-
-BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PlayerEnterRoom:
+movement BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PlayerEnterRoom{
 	walk_down
 	step_end
+}
 
-BattleFrontier_BattleTowerMultiPartnerRoom_Movement_AttendantBlockExit:
+movement BattleFrontier_BattleTowerMultiPartnerRoom_Movement_AttendantBlockExit{
 	walk_left
 	walk_in_place_faster_down
 	step_end
+}
 
+raw`
 .set LOCALID_ATTENDANT, 1
 
 BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Attendant::
@@ -1796,3 +1794,4 @@ BattleFrontier_BattleTowerMultiPartnerRoom_Text_SwimmerMAccept::
 BattleFrontier_BattleTowerMultiPartnerRoom_Text_SwimmerMReject::
 	.string "If we meet again, you have to team up\n"
 	.string "with me. You'll do that, right?$"
+`
