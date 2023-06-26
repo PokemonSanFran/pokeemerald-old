@@ -1,9 +1,9 @@
 const ATTENDANT = 1
 const PLAYER = OBJ_EVENT_ID_PLAYER
 
-const VAR_MUST_CHOOSE_PARTNER = VAR_TEMP_1
-const VAR_CHOSEN_PARTNER = VAR_TEMP_2
-const VAR_LEAVE_ROOM = VAR_TEMP_3
+const VAR_HEARD_INSTRUCTIONS= VAR_TEMP_1
+const VAR_CHOSEN_PARTNER_ID= VAR_TEMP_2
+const VAR_LEAVE_ROOM= VAR_TEMP_3
 
 mapscripts BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts{
     MAP_SCRIPT_ON_RESUME{
@@ -32,23 +32,14 @@ mapscripts BattleFrontier_BattleTowerMultiPartnerRoom_MapScripts{
         VAR_LEAVE_ROOM, 1: BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TurnPlayerNorth
     ]
     MAP_SCRIPT_ON_FRAME_TABLE[
-        VAR_MUST_CHOOSE_PARTNER, 0: BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_EnterRoom
+        VAR_HEARD_INSTRUCTIONS, 0: BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_EnterRoom
         VAR_LEAVE_ROOM, 1: BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_ExitRoom
     ]
 }
 
 script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_ChosePartner{
-    setvar(VAR_OBJ_GFX_ID_0, OBJ_EVENT_GFX_BOY_1)
-    setvar(VAR_OBJ_GFX_ID_1, OBJ_EVENT_GFX_BOY_1)
-    setvar(VAR_OBJ_GFX_ID_2, OBJ_EVENT_GFX_BOY_1)
-    setvar(VAR_OBJ_GFX_ID_3, OBJ_EVENT_GFX_BOY_1)
-    setvar(VAR_OBJ_GFX_ID_4, OBJ_EVENT_GFX_BOY_1)
-    setvar(VAR_OBJ_GFX_ID_5, OBJ_EVENT_GFX_BOY_1)
-    setvar(VAR_OBJ_GFX_ID_6, OBJ_EVENT_GFX_BOY_1)
-    setvar(VAR_OBJ_GFX_ID_7, OBJ_EVENT_GFX_BOY_1)
-
-    setvar(VAR_MUST_CHOOSE_PARTNER, 1)
-    setvar(VAR_LEAVE_ROOM, 0)
+    setvar(VAR_HEARD_INSTRUCTIONS, 1)
+    setvar(VAR_LEAVE_ROOM, 1)
 
     setobjectxyperm(ATTENDANT, 10, 2)
 	end
@@ -81,7 +72,7 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_EnterRoom{
 	msgbox(BattleFrontier_BattleTowerMultiPartnerRoom_Text_PleaseFindPartner, MSGBOX_DEFAULT)
 
 	special(HealPlayerParty)
-	setvar(VAR_MUST_CHOOSE_PARTNER, 1)
+	setvar(VAR_HEARD_INSTRUCTIONS, 1)
 	releaseall
 	end
 }
@@ -163,7 +154,7 @@ movement BattleFrontier_BattleTowerMultiPartnerRoom_Movement_AttendantEnterEleva
 script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner1{
 	lock
 	faceplayer
-	setvar(VAR_CHOSEN_PARTNER, 0)
+	setvar(VAR_CHOSEN_PARTNER_ID, 0)
 	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner)
 	end
 }
@@ -186,9 +177,8 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPar
 
 	multichoicedefault(20, 8, MULTI_YESNO, 1, FALSE)
 
-    switch(var(VAR_RESULT)){
-        case 1: goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_RejectPartner)
-        case MULTI_B_PRESSED: goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_RejectPartner)
+    if (var(VAR_RESULT) != 0){
+        goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_RejectPartner)
     }
 
 	tower_dopartnermsg(PARTNER_MSGID_ACCEPT)
@@ -196,12 +186,10 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPar
 	waitbuttonpress
 	closemessage
 
-    if (var(VAR_FACING) != DIR_SOUTH){
-        call(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_PartnerExit)
-    }
-
     if (var(VAR_FACING) == DIR_SOUTH){
         call(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_PartnerExitSouth)
+    }else{
+        call(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_PartnerExit)
     }
 
 	removeobject(VAR_LAST_TALKED)
@@ -259,10 +247,10 @@ movement BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExitSouth{
 script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner{
     lock
 	faceplayer
-    experimental shit
+    //experimental shit
     copyvar(VAR_0x8007,VAR_LAST_TALKED)
     subvar(VAR_0x8007,2)
-    setvar(VAR_CHOSEN_PARTNER,VAR_0x8007)
+    setvar(VAR_CHOSEN_PARTNER_ID,VAR_0x8007)
 	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner)
 	end
 }
@@ -270,7 +258,7 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner{
 script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner2{
 	lock
 	faceplayer
-	setvar(VAR_CHOSEN_PARTNER, 1)
+	setvar(VAR_CHOSEN_PARTNER_ID, 1)
 	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner)
 	end
 }
@@ -278,7 +266,7 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner2{
 script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner3{
 	lock
 	faceplayer
-	setvar(VAR_CHOSEN_PARTNER, 2)
+	setvar(VAR_CHOSEN_PARTNER_ID, 2)
 	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner)
 	end
 }
@@ -286,7 +274,7 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner3{
 script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner4{
 	lock
 	faceplayer
-	setvar(VAR_CHOSEN_PARTNER, 3)
+	setvar(VAR_CHOSEN_PARTNER_ID, 3)
 	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner)
 	end
 }
@@ -294,7 +282,7 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner4{
 script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner5{
 	lock
 	faceplayer
-	setvar(VAR_CHOSEN_PARTNER, 4)
+	setvar(VAR_CHOSEN_PARTNER_ID, 4)
 	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner)
 	end
 }
@@ -302,7 +290,7 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner5{
 script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner6{
 	lock
 	faceplayer
-	setvar(VAR_CHOSEN_PARTNER, 5)
+	setvar(VAR_CHOSEN_PARTNER_ID, 5)
 	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner)
 	end
 }
@@ -310,7 +298,7 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner6{
 script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner7{
 	lock
 	faceplayer
-	setvar(VAR_CHOSEN_PARTNER, 6)
+	setvar(VAR_CHOSEN_PARTNER_ID, 6)
 	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner)
 	end
 }
@@ -318,7 +306,7 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner7{
 script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner8{
 	lock
 	faceplayer
-	setvar(VAR_CHOSEN_PARTNER, 7)
+	setvar(VAR_CHOSEN_PARTNER_ID, 7)
 	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner)
 	end
 }
