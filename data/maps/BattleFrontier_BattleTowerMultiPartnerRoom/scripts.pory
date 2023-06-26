@@ -151,14 +151,6 @@ movement BattleFrontier_BattleTowerMultiPartnerRoom_Movement_AttendantEnterEleva
 	step_end
 }
 
-script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner1{
-	lock
-	faceplayer
-	setvar(VAR_CHOSEN_PARTNER_ID, 0)
-	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner)
-	end
-}
-
 script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner{
     if (flag(FLAG_CHOSEN_MULTI_BATTLE_NPC_PARTNER)){
         goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_RejectPartner)
@@ -187,10 +179,11 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPar
 	closemessage
 
     if (var(VAR_FACING) == DIR_SOUTH){
-        call(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_PartnerExitSouth)
-    }else{
-        call(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_PartnerExit)
+        applymovement(VAR_LAST_TALKED,BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExitSouth)
+        waitmovement(0)
     }
+    applymovement(VAR_LAST_TALKED, BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExit)
+    waitmovement(0)
 
 	removeobject(VAR_LAST_TALKED)
 	setflag(FLAG_CHOSEN_MULTI_BATTLE_NPC_PARTNER)
@@ -209,48 +202,20 @@ script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_RejectPartner{
 	end
 }
 
-script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_PartnerExit{
-	applymovement(VAR_LAST_TALKED, BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExit)
-	waitmovement(0)
-	return
-}
-
-script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_PartnerExitSouth{
-	applymovement(VAR_LAST_TALKED, BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExitSouth)
-	waitmovement(0)
-	return
+movement BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExitSouth{
+	walk_fast_left
+	step_end
 }
 
 movement BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExit{
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
+	walk_fast_up * 7
 	step_end
 }
 
-movement BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExitSouth{
-	walk_fast_left
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	step_end
-}
-
-script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner{
-    lock
+script BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner1{
+	lock
 	faceplayer
-    //experimental shit
-    copyvar(VAR_0x8007,VAR_LAST_TALKED)
-    subvar(VAR_0x8007,2)
-    setvar(VAR_CHOSEN_PARTNER_ID,VAR_0x8007)
+	setvar(VAR_CHOSEN_PARTNER_ID, 0)
 	goto(BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner)
 	end
 }

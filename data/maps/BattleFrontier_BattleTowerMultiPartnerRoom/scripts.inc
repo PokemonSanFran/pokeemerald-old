@@ -139,14 +139,6 @@ BattleFrontier_BattleTowerMultiPartnerRoom_Movement_AttendantEnterElevator:
 	set_invisible
 	step_end
 
-BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner1::
-	lock
-	faceplayer
-	setvar VAR_TEMP_2, 0
-	goto BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner
-	end
-
-
 BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner::
 	goto_if_set FLAG_CHOSEN_MULTI_BATTLE_NPC_PARTNER, BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner_2
 BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner_1:
@@ -168,8 +160,9 @@ BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner_4:
 	closemessage
 	compare VAR_FACING, DIR_SOUTH
 	goto_if_eq BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner_8
-	call BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_PartnerExit
 BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner_7:
+	applymovement VAR_LAST_TALKED, BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExit
+	waitmovement 0
 	removeobject VAR_LAST_TALKED
 	setflag FLAG_CHOSEN_MULTI_BATTLE_NPC_PARTNER
 	warpsilent MAP_BATTLE_FRONTIER_BATTLE_TOWER_MULTI_PARTNER_ROOM, 10, 3
@@ -186,7 +179,8 @@ BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner_5:
 	goto BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner_4
 
 BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner_8:
-	call BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_PartnerExitSouth
+	applymovement VAR_LAST_TALKED, BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExitSouth
+	waitmovement 0
 	goto BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner_7
 
 
@@ -198,17 +192,9 @@ BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_RejectPartner::
 	end
 
 
-BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_PartnerExit::
-	applymovement VAR_LAST_TALKED, BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExit
-	waitmovement 0
-	return
-
-
-BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_PartnerExitSouth::
-	applymovement VAR_LAST_TALKED, BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExitSouth
-	waitmovement 0
-	return
-
+BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExitSouth:
+	walk_fast_left
+	step_end
 
 BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExit:
 	walk_fast_up
@@ -220,23 +206,10 @@ BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExit:
 	walk_fast_up
 	step_end
 
-BattleFrontier_BattleTowerMultiPartnerRoom_Movement_PartnerExitSouth:
-	walk_fast_left
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	walk_fast_up
-	step_end
-
-BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner::
+BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_Partner1::
 	lock
 	faceplayer
-	copyvar VAR_0x8007, VAR_LAST_TALKED
-	subvar VAR_0x8007, 2
-	setvar VAR_TEMP_2, VAR_0x8007
+	setvar VAR_TEMP_2, 0
 	goto BattleFrontier_BattleTowerMultiPartnerRoom_EventScript_TalkToPotentialPartner
 	end
 
