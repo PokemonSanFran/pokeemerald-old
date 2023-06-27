@@ -595,55 +595,50 @@ script BattleFrontier_BattleTowerLobby_EventScript_ShowLinkMultisResults{
     goto(BattleFrontier_BattleTowerLobby_EventScript_ShowResults)
 }
 
+const MODE_50_SINGLES = 51
+const MODE_50_DOUBLES = 52
+const MODE_50_MULTIS = 53
+const MODE_OPEN_SINGLES = 101
+const MODE_OPEN_DOUBLES = 102
+const MODE_OPEN_MULTIS = 103
+
 script BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMons{
+    call(BattleFrontier_BattleTowerLobby_EventScript_GetModeandFormat)
+
+    switch(var(VAR_TEMP_3)){
+        case MODE_50_SINGLES: 
+            msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLv50Singles, MSGBOX_DEFAULT)
+        case MODE_50_DOUBLES:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLv50Doubles, MSGBOX_DEFAULT)
+        case MODE_50_MULTIS:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLv50Multis, MSGBOX_DEFAULT)
+        case MODE_OPEN_SINGLES:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLvOpenSingles, MSGBOX_DEFAULT)
+        case MODE_OPEN_DOUBLES:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLvOpenDoubles, MSGBOX_DEFAULT)
+        case MODE_OPEN_MULTIS:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLvOpenMultis, MSGBOX_DEFAULT)
+    }
+
+    goto(BattleFrontier_BattleTowerLobby_EventScript_EndCancelChallenge)
+    end
+}
+
+script BattleFrontier_BattleTowerLobby_EventScript_GetModeandFormat{
+    setvar(VAR_TEMP_3,0)
+
     switch(var(VAR_RESULT)){
-        case FRONTIER_LVL_50:goto(BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLv50)
-        case FRONTIER_LVL_OPEN:goto(BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLvOpen)
+        case FRONTIER_LVL_50: addvar(VAR_TEMP_3,50)
+        case FRONTIER_LVL_OPEN: addvar(VAR_TEMP_3,100)
+        default: addvar(VAR_TEMP_3,200)
     }
-}
 
-script BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLv50{
     switch(var(VAR_FRONTIER_BATTLE_MODE)){
-        case FRONTIER_MODE_SINGLES:goto(BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLv50Singles)
-        case FRONTIER_MODE_DOUBLES:goto(BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLv50Doubles)
+        case FRONTIER_MODE_SINGLES: addvar(VAR_TEMP_3,1)
+        case FRONTIER_MODE_DOUBLES: addvar(VAR_TEMP_3,2)
+        default: addvar(VAR_TEMP_3,3)
     }
-    msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLv50Multis, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_EndCancelChallenge)
-        end
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLv50Singles{
-    msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLv50Singles, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_EndCancelChallenge)
-        end
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLv50Doubles{
-    msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLv50Doubles, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_EndCancelChallenge)
-        end
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLvOpen{
-    switch(var(VAR_FRONTIER_BATTLE_MODE)){
-        case FRONTIER_MODE_SINGLES:goto(BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLvOpenSingles)
-        case FRONTIER_MODE_DOUBLES:goto(BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLvOpenDoubles)
-    }
-    msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLvOpenMultis, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_EndCancelChallenge)
-        end
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLvOpenSingles{
-    msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLvOpenSingles, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_EndCancelChallenge)
-        end
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMonsLvOpenDoubles{
-    msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLvOpenDoubles, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_EndCancelChallenge)
-        end
+    return
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_CancelChallengeSaveFailed{
