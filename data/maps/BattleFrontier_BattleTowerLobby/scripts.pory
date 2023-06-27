@@ -168,68 +168,63 @@ script BattleFrontier_BattleTowerLobby_EventScript_AskSaveBattle{
     tower_save(0)
     playse(SE_SAVE)
     waitse
-    call(BattleFrontier_EventScript_GetCantRecordBattle)
-    goto_if_eq(VAR_RESULT, TRUE, BattleFrontier_BattleTowerLobby_EventScript_EndSaveBattle)
+
+    frontier_get(FRONTIER_DATA_RECORD_DISABLED)
+    if (var(VAR_RESULT) == TRUE){
+        return
+    }
+
     message(BattleFrontier_BattleTowerLobby_Text_RecordLastMatch)
     waitmessage
     multichoicedefault(20, 8, MULTI_YESNO, 1, FALSE)
-    switch(var(VAR_RESULT)){
-        case 1: goto(BattleFrontier_BattleTowerLobby_EventScript_EndSaveBattle)
-        case 0: goto(BattleFrontier_EventScript_SaveBattle)
-        case MULTI_B_PRESSED: goto(BattleFrontier_BattleTowerLobby_EventScript_EndSaveBattle)
-    }
-}
+    if (var(VAR_RESULT) == 0){
+        call(BattleFrontier_EventScript_SaveBattle)
+    }   
 
-script BattleFrontier_EventScript_SaveBattle{
-        frontier_savebattle
-        goto_if_eq(VAR_RESULT, FALSE, BattleFrontier_EventScript_BattleSaveFailed)
-        playse(SE_SAVE)
-        msgbox(BattleFrontier_BattleTowerLobby_Text_BattleRecordedOnPass, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_EndSaveBattle)
-}
-
-script BattleFrontier_EventScript_BattleSaveFailed{
-    msgbox(BattleFrontier_BattleTowerBattleRoom_Text_RecordCouldntBeSaved, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_EndSaveBattle)
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_EndSaveBattle{
     return
 }
 
-script BattleFrontier_EventScript_GetCantRecordBattle{
-    frontier_get(FRONTIER_DATA_RECORD_DISABLED)
-        return
+script BattleFrontier_EventScript_SaveBattle{
+    frontier_savebattle
+    if (var(VAR_RESULT)){
+        playse(SE_SAVE)
+        msgbox(BattleFrontier_BattleTowerLobby_Text_BattleRecordedOnPass, MSGBOX_DEFAULT)
+    }else{
+        msgbox(BattleFrontier_BattleTowerBattleRoom_Text_RecordCouldntBeSaved, MSGBOX_DEFAULT)
+    }
+
+    return
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_ResumeChallenge{
     lock
-        faceplayer
-        call_if_eq(VAR_FRONTIER_BATTLE_MODE, FRONTIER_MODE_SINGLES, BattleFrontier_BattleTowerLobby_EventScript_SetBravoTrainerOn)
-        message(BattleFrontier_BattleTowerLobby_Text_WeveBeenWaitingForYou)
-        waitmessage
-        message(BattleFrontier_BattleTowerLobby_Text_ProgressWillBeSaved)
-        waitmessage
-        tower_save(CHALLENGE_STATUS_SAVING)
-        playse(SE_SAVE)
-        waitse
-        frontier_set(FRONTIER_DATA_PAUSED, FALSE)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_EnterElevator)
-        end
-}
+    faceplayer
 
-script BattleFrontier_BattleTowerLobby_EventScript_SetBravoTrainerOn{
-    setvar(VAR_BRAVO_TRAINER_BATTLE_TOWER_ON, TRUE)
-        return
+    if (var(VAR_FRONTIER_BATTLE_MODE) == FRONTIER_MODE_SINGLES){
+        setvar(VAR_BRAVO_TRAINER_BATTLE_TOWER_ON, TRUE)
+    }
+
+    message(BattleFrontier_BattleTowerLobby_Text_WeveBeenWaitingForYou)
+    waitmessage
+    message(BattleFrontier_BattleTowerLobby_Text_ProgressWillBeSaved)
+    waitmessage
+
+    tower_save(CHALLENGE_STATUS_SAVING)
+    playse(SE_SAVE)
+    waitse
+    frontier_set(FRONTIER_DATA_PAUSED, FALSE)
+
+    goto(BattleFrontier_BattleTowerLobby_EventScript_EnterElevator)
+    end
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_SinglesAttendant{
     lock
-        faceplayer
-        setvar(VAR_FRONTIER_FACILITY, FRONTIER_FACILITY_TOWER)
-        special(SavePlayerParty)
-        msgbox(BattleFrontier_BattleTowerLobby_Text_WelcomSingleBattle, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_AskEnterSinglesChallenge)
+    faceplayer
+    setvar(VAR_FRONTIER_FACILITY, FRONTIER_FACILITY_TOWER)
+    special(SavePlayerParty)
+    msgbox(BattleFrontier_BattleTowerLobby_Text_WelcomSingleBattle, MSGBOX_DEFAULT)
+    goto(BattleFrontier_BattleTowerLobby_EventScript_AskEnterSinglesChallenge)
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_AskEnterSinglesChallenge{
@@ -1351,3 +1346,8 @@ text BattleFrontier_BattleTowerLobby_Text_ExplainMultiLinkRules{
 // BattleFrontier_BattleTowerLobby_EventScript_TryBecomeLeader
 // BattleFrontier_BattleTowerLobby_EventScript_TryJoinGroup
 // BattleFrontier_BattleTowerLobby_EventScript_WirelessLinkSuccessful
+
+script BattleFrontier_EventScript_GetCantRecordBattle{
+	frontier_get(FRONTIER_DATA_RECORD_DISABLED)
+	return
+}
