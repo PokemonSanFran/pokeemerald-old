@@ -9,6 +9,13 @@ const CHALLENGE_STATUS_END = 255
 
 const VAR_NEED_TO_FACE_NORTH = VAR_TEMP_1
 
+const MODE_50_SINGLES = 51
+const MODE_50_DOUBLES = 52
+const MODE_50_MULTIS = 53
+const MODE_OPEN_SINGLES = 101
+const MODE_OPEN_DOUBLES = 102
+const MODE_OPEN_MULTIS = 103
+
 // Note: BATTLE_TOWER_LOBBY_REPORTER is a local id for this map used elsewhere. It's defined in event_objects.h
 
 mapscripts BattleFrontier_BattleTowerLobby_MapScripts{
@@ -321,9 +328,13 @@ script BattleFrontier_BattleTowerLobby_EventScript_SaveBeforeChallenge{
     }
 
     call(Common_EventScript_SaveGame)
-
     setvar(VAR_FACILITY_CHALLENGE_STATUS, CHALLENGE_STATUS_END)
-    goto_if_eq(VAR_RESULT, 0, BattleFrontier_BattleTowerLobby_EventScript_CancelChallengeSaveFailed)
+    
+    if (var(VAR_RESULT) == 0){
+        frontier_set(FRONTIER_DATA_CHALLENGE_STATUS)  // No status provided, so it relies on VAR_0x8006 being 0 already
+        goto(BattleFrontier_BattleTowerLobby_EventScript_CancelChallenge)
+    }
+
     call(BattleFrontier_BattleTowerLobby_EventScript_HandleMultiplayer)
 
     switch(var(VAR_LAST_TALKED)){
@@ -509,27 +520,27 @@ script BattleFrontier_BattleTowerLobby_EventScript_LinkMultisAttendant{
 
 script BattleFrontier_BattleTowerLobby_EventScript_FeelingsMan{
     lock
-        faceplayer
-        message(BattleFrontier_BattleTowerLobby_Text_DescribeFeelingsAboutBattleTower)
-        waitmessage
-        multichoice(16, 4, MULTI_BATTLE_TOWER_FEELINGS, FALSE)
-        switch(var(VAR_RESULT)){
-            case 0:
-                msgbox(BattleFrontier_BattleTowerLobby_Text_FeelWhatWhenYouBegin, MSGBOX_DEFAULT)
-                setvar(VAR_0x8004, EASY_CHAT_TYPE_BATTLE_START)
-                goto(BattleFrontier_BattleTowerLobby_EventScript_EnterFeelingsEasyChat)
-            case 1:
-                msgbox(BattleFrontier_BattleTowerLobby_Text_FeelWhatWhenYouveWon, MSGBOX_DEFAULT)
-                setvar(VAR_0x8004, EASY_CHAT_TYPE_BATTLE_WON)
-                goto(BattleFrontier_BattleTowerLobby_EventScript_EnterFeelingsEasyChat)
-            case 2:
-                msgbox(BattleFrontier_BattleTowerLobby_Text_FeelWhatWhenYouveLost, MSGBOX_DEFAULT)
-                setvar(VAR_0x8004, EASY_CHAT_TYPE_BATTLE_LOST)
-                goto(BattleFrontier_BattleTowerLobby_EventScript_EnterFeelingsEasyChat)
-            case 3:
-            case MULTI_B_PRESSED:
-                msgbox(BattleFrontier_BattleTowerLobby_Text_DontThinkMuchAboutIt, MSGBOX_DEFAULT)
-        }
+    faceplayer
+    message(BattleFrontier_BattleTowerLobby_Text_DescribeFeelingsAboutBattleTower)
+    waitmessage
+    multichoice(16, 4, MULTI_BATTLE_TOWER_FEELINGS, FALSE)
+    switch(var(VAR_RESULT)){
+        case 0:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_FeelWhatWhenYouBegin, MSGBOX_DEFAULT)
+            setvar(VAR_0x8004, EASY_CHAT_TYPE_BATTLE_START)
+            goto(BattleFrontier_BattleTowerLobby_EventScript_EnterFeelingsEasyChat)
+        case 1:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_FeelWhatWhenYouveWon, MSGBOX_DEFAULT)
+            setvar(VAR_0x8004, EASY_CHAT_TYPE_BATTLE_WON)
+            goto(BattleFrontier_BattleTowerLobby_EventScript_EnterFeelingsEasyChat)
+        case 2:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_FeelWhatWhenYouveLost, MSGBOX_DEFAULT)
+            setvar(VAR_0x8004, EASY_CHAT_TYPE_BATTLE_LOST)
+            goto(BattleFrontier_BattleTowerLobby_EventScript_EnterFeelingsEasyChat)
+        case 3:
+        case MULTI_B_PRESSED:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_DontThinkMuchAboutIt, MSGBOX_DEFAULT)
+    }
     release
         end
 }
@@ -548,17 +559,17 @@ script BattleFrontier_BattleTowerLobby_EventScript_CheckFeelings{
         msgbox(BattleFrontier_BattleTowerLobby_Text_ChangedYourMind, MSGBOX_DEFAULT)
     }
     release
-        end
+    end
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_Woman{
     msgbox(BattleFrontier_BattleTowerLobby_Text_WinsInRowRecorded, MSGBOX_NPC)
-        end
+    end
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_Boy{
     msgbox(BattleFrontier_BattleTowerLobby_Text_CanLeaveUntilLossOrSevenWins, MSGBOX_NPC)
-        end
+    end
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_ShowResults{
@@ -595,17 +606,10 @@ script BattleFrontier_BattleTowerLobby_EventScript_ShowLinkMultisResults{
     goto(BattleFrontier_BattleTowerLobby_EventScript_ShowResults)
 }
 
-const MODE_50_SINGLES = 51
-const MODE_50_DOUBLES = 52
-const MODE_50_MULTIS = 53
-const MODE_OPEN_SINGLES = 101
-const MODE_OPEN_DOUBLES = 102
-const MODE_OPEN_MULTIS = 103
-
 script BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMons{
     call(BattleFrontier_BattleTowerLobby_EventScript_GetModeandFormat)
 
-    switch(var(VAR_TEMP_3)){
+    switch(var(VAR_0x8007)){
         case MODE_50_SINGLES: 
             msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLv50Singles, MSGBOX_DEFAULT)
         case MODE_50_DOUBLES:
@@ -620,47 +624,37 @@ script BattleFrontier_BattleTowerLobby_EventScript_NotEnoughValidMons{
             msgbox(BattleFrontier_BattleTowerLobby_Text_NotEnoughValidMonsLvOpenMultis, MSGBOX_DEFAULT)
     }
 
-    goto(BattleFrontier_BattleTowerLobby_EventScript_EndCancelChallenge)
+    release
     end
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_GetModeandFormat{
-    setvar(VAR_TEMP_3,0)
+    setvar(VAR_0x8007,0)
 
     switch(var(VAR_RESULT)){
-        case FRONTIER_LVL_50: addvar(VAR_TEMP_3,50)
-        case FRONTIER_LVL_OPEN: addvar(VAR_TEMP_3,100)
-        default: addvar(VAR_TEMP_3,200)
+        case FRONTIER_LVL_50: addvar(VAR_0x8007,50)
+        case FRONTIER_LVL_OPEN: addvar(VAR_0x8007,100)
+        default: addvar(VAR_0x8007,200)
     }
 
     switch(var(VAR_FRONTIER_BATTLE_MODE)){
-        case FRONTIER_MODE_SINGLES: addvar(VAR_TEMP_3,1)
-        case FRONTIER_MODE_DOUBLES: addvar(VAR_TEMP_3,2)
-        default: addvar(VAR_TEMP_3,3)
+        case FRONTIER_MODE_SINGLES: addvar(VAR_0x8007,1)
+        case FRONTIER_MODE_DOUBLES: addvar(VAR_0x8007,2)
+        default: addvar(VAR_0x8007,3)
     }
     return
 }
 
-script BattleFrontier_BattleTowerLobby_EventScript_CancelChallengeSaveFailed{
-    frontier_set(FRONTIER_DATA_CHALLENGE_STATUS  @ No status provided, so it relies on VAR_0x8006 being 0 already)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_CancelChallenge)
-        end
-}
-
 script BattleFrontier_BattleTowerLobby_EventScript_LoadPartyCancelChallenge{
     special(LoadPlayerParty)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_CancelChallenge)
+    goto(BattleFrontier_BattleTowerLobby_EventScript_CancelChallenge)
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_CancelChallenge{
     special(CloseLink)
-        msgbox(BattleFrontier_BattleTowerLobby_Text_LookForwardToAnotherChallenge, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_EndCancelChallenge)
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_EndCancelChallenge{
+    msgbox(BattleFrontier_BattleTowerLobby_Text_LookForwardToAnotherChallenge, MSGBOX_DEFAULT)
     release
-        end
+    end
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_EnterElevator{
@@ -675,28 +669,32 @@ script BattleFrontier_BattleTowerLobby_EventScript_EnterElevator{
 
 script BattleFrontier_BattleTowerLobby_EventScript_WaitForLinkOpponentLoad{
     tower_loadlinkopponents
-        delay(1)
-        goto_if_ne(VAR_RESULT, 6, BattleFrontier_BattleTowerLobby_EventScript_WaitForLinkOpponentLoad)
-        call(BattleFrontier_BattleTowerLobby_EventScript_ShowYouToBattleRoom)
-        clearflag(FLAG_CANCEL_BATTLE_ROOM_CHALLENGE)
-        warp(MAP_BATTLE_FRONTIER_BATTLE_TOWER_ELEVATOR, 1, 6)
-        setvar(VAR_FACILITY_CHALLENGE_STATUS, 0)
-        waitstate
-        end
+    delay(1)
+
+    if(var(VAR_RESULT) != 6){
+        goto(BattleFrontier_BattleTowerLobby_EventScript_WaitForLinkOpponentLoad)
+    }
+
+    call(BattleFrontier_BattleTowerLobby_EventScript_ShowYouToBattleRoom)
+    clearflag(FLAG_CANCEL_BATTLE_ROOM_CHALLENGE)
+    warp(MAP_BATTLE_FRONTIER_BATTLE_TOWER_ELEVATOR, 1, 6)
+    setvar(VAR_FACILITY_CHALLENGE_STATUS, 0)
+    waitstate
+    end
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_ShowYouToBattleRoom{
     call(BattleFrontier_BattleTowerLobby_EventScript_BufferModeText)
-        goto_if_eq(VAR_FRONTIER_BATTLE_MODE, FRONTIER_MODE_LINK_MULTIS, BattleFrontier_BattleTowerLobby_EventScript_ShowYouToLinkMultiBattleRoom)
-        msgbox(BattleFrontier_BattleTowerLobby_Text_ShowYouToBattleRoom, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_WalkToElevator)
-}
 
-script BattleFrontier_BattleTowerLobby_EventScript_ShowYouToLinkMultiBattleRoom{
-    messageautoscroll(BattleFrontier_BattleTowerLobby_Text_ShowYouToBattleRoom)
-        waitmessage
-        delay(48)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_WalkToElevator)
+        if (var(VAR_FRONTIER_BATTLE_MODE) == FRONTIER_MODE_LINK_MULTIS){
+            messageautoscroll(BattleFrontier_BattleTowerLobby_Text_ShowYouToBattleRoom)
+            waitmessage
+            delay(48)
+        }else{
+            msgbox(BattleFrontier_BattleTowerLobby_Text_ShowYouToBattleRoom, MSGBOX_DEFAULT)
+        }
+
+    goto(BattleFrontier_BattleTowerLobby_EventScript_WalkToElevator)
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_WalkToElevator{
@@ -718,22 +716,22 @@ script BattleFrontier_BattleTowerLobby_EventScript_WalkToElevator{
 
 movement BattleFrontier_BattleTowerLobby_Movement_WalkToElevator{
     walk_up
-        walk_up
-        walk_up
-        step_end
+    walk_up
+    walk_up
+    step_end
 }
 
 movement BattleFrontier_BattleTowerLobby_Movement_AttendantEnterElevator{
     walk_up
-        set_invisible
-        step_end
+    set_invisible
+    step_end
 }
 
 movement BattleFrontier_BattleTowerLobby_Movement_PlayerEnterElevator{
     walk_up
-        walk_up
-        set_invisible
-        step_end
+    walk_up
+    set_invisible
+    step_end
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_BufferModeText{
@@ -776,56 +774,33 @@ script BattleFrontier_BattleTowerLobby_EventScript_GetPartySize{
     return
 }
 
-
 script BattleFrontier_BattleTowerLobby_EventScript_RulesBoard{
     lockall
-        msgbox(BattleFrontier_BattleTowerLobby_Text_RulesAreListed, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_ReadRulesBoard)
-        end
+    msgbox(BattleFrontier_BattleTowerLobby_Text_RulesAreListed, MSGBOX_DEFAULT)
+    goto(BattleFrontier_BattleTowerLobby_EventScript_ReadRulesBoard)
+    end
 }
 
 script BattleFrontier_BattleTowerLobby_EventScript_ReadRulesBoard{
     message(BattleFrontier_BattleTowerLobby_Text_ReadWhichHeading)
-        waitmessage
-        multichoice(17, 2, MULTI_BATTLE_TOWER_RULES, FALSE)
-        switch(var(VAR_RESULT)){
-            case 0:goto(BattleFrontier_BattleTowerLobby_EventScript_RulesTower)
-            case 1:goto(BattleFrontier_BattleTowerLobby_EventScript_RulesMons)
-            case 2:goto(BattleFrontier_BattleTowerLobby_EventScript_RulesSalon)
-            case 3:goto(BattleFrontier_BattleTowerLobby_EventScript_RulesMultiLink)
-            case 4:goto(BattleFrontier_BattleTowerLobby_EventScript_ExitRules)
-            case MULTI_B_PRESSED:goto(BattleFrontier_BattleTowerLobby_EventScript_ExitRules)
-        }
+    waitmessage
+    multichoice(17, 2, MULTI_BATTLE_TOWER_RULES, FALSE)
+    switch(var(VAR_RESULT)){
+        case 0:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_ExplainTowerRules, MSGBOX_DEFAULT)
+        case 1:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_ExplainMonRules, MSGBOX_DEFAULT)
+        case 2:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_ExplainSalonRules, MSGBOX_DEFAULT)
+        case 3:
+            msgbox(BattleFrontier_BattleTowerLobby_Text_ExplainMultiLinkRules, MSGBOX_DEFAULT)
+        case 4:
+        case MULTI_B_PRESSED:
+            releaseall
+            end
+    }
+    goto(BattleFrontier_BattleTowerLobby_EventScript_ReadRulesBoard)
     end
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_RulesTower{
-    msgbox(BattleFrontier_BattleTowerLobby_Text_ExplainTowerRules, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_ReadRulesBoard)
-        end
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_RulesMons{
-    msgbox(BattleFrontier_BattleTowerLobby_Text_ExplainMonRules, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_ReadRulesBoard)
-        end
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_RulesSalon{
-    msgbox(BattleFrontier_BattleTowerLobby_Text_ExplainSalonRules, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_ReadRulesBoard)
-        end
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_RulesMultiLink{
-    msgbox(BattleFrontier_BattleTowerLobby_Text_ExplainMultiLinkRules, MSGBOX_DEFAULT)
-        goto(BattleFrontier_BattleTowerLobby_EventScript_ReadRulesBoard)
-        end
-}
-
-script BattleFrontier_BattleTowerLobby_EventScript_ExitRules{
-    releaseall
-        end
 }
 
 text BattleFrontier_BattleTowerLobby_Text_DirectYouToBattleRoom{
